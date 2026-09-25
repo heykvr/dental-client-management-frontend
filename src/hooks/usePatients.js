@@ -2,10 +2,10 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 
 import { createPatient, getPatient, listPatients, updatePatient } from '@/api/patients'
 
-export function usePatients({ search, page, limit }) {
+export function usePatients({ search, page, limit, sort, order }) {
   return useQuery({
-    queryKey: ['patients', { search, page, limit }],
-    queryFn: () => listPatients({ search, page, limit }),
+    queryKey: ['patients', { search, page, limit, sort, order }],
+    queryFn: () => listPatients({ search, page, limit, sort, order }),
     placeholderData: keepPreviousData, // keep the old page visible while the next one loads
   })
 }

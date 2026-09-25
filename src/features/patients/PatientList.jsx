@@ -10,9 +10,10 @@ import Skeleton from '@/components/ui/Skeleton'
 import Spinner from '@/components/ui/Spinner'
 import StatusBadge from '@/features/case-sheet/StatusBadge'
 import PatientAvatar from '@/features/patients/PatientAvatar'
+import SortableHeader from '@/features/patients/SortableHeader'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 import { usePatients, usePrefillPatient } from '@/hooks/usePatients'
-import { formatDate, formatShortDate } from '@/lib/utils'
+import { formatShortDate } from '@/lib/utils'
 
 const PAGE_SIZE = 10
 
@@ -21,13 +22,27 @@ export default function PatientList() {
   const prefillPatient = usePrefillPatient()
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+  // Default: newest first. Clicking a column header sorts by it (server-side, across all pages)
+  const [sort, setSort] = useState({ field: 'created_at', order: 'desc' })
   // Wait 250 ms after the last keystroke before searching (fewer API calls, still feels instant)
   const debouncedSearch = useDebouncedValue(search.trim(), 250)
   const { data, isPending, isError, error, refetch, isFetching } = usePatients({
     search: debouncedSearch,
     page,
     limit: PAGE_SIZE,
+    sort: sort.field,
+    order: sort.order,
   })
+
+  function changeSort(field) {
+    // Same column: flip the direction. New column: start A→Z / low→high / Not started first
+    setSort((current) =>
+      current.field === field
+        ? { field, order: current.order === 'asc' ? 'desc' : 'asc' }
+        : { field, order: 'asc' },
+    )
+    setPage(1)
+  }
 
   function openPatient(patient) {
     prefillPatient(patient)
@@ -96,11 +111,26 @@ export default function PatientList() {
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-50 text-xs tracking-wide text-slate-500 uppercase">
                 <tr>
-                  <th className="px-5 py-2 font-medium">Patient</th>
-                  <th className="px-5 py-2 font-medium">Patient ID</th>
-                  <th className="px-5 py-2 font-medium">Age / DOB</th>
+                  <SortableHeader
+                    label="Patient name"
+                    field="name"
+                    sort={sort}
+                    onSort={changeSort}
+                  />
+                  <SortableHeader
+                    label="Patient ID"
+                    field="patient_id"
+                    sort={sort}
+                    onSort={changeSort}
+                  />
+                  <th className="px-5 py-2 font-medium">Age</th>
                   <th className="px-5 py-2 font-medium">Phone</th>
-                  <th className="px-5 py-2 font-medium">Case sheet</th>
+                  <SortableHeader
+                    label="Case sheet"
+                    field="status"
+                    sort={sort}
+                    onSort={changeSort}
+                  />
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -122,12 +152,7 @@ export default function PatientList() {
                       </div>
                     </td>
                     <td className="px-5 py-3 text-slate-600">{patient.patient_id}</td>
-                    <td className="px-5 py-3 text-slate-600">
-                      {patient.age} yrs
-                      <span className="block text-xs text-slate-500">
-                        {formatDate(patient.date_of_birth)}
-                      </span>
-                    </td>
+                    <td className="px-5 py-3 text-slate-600">{patient.age} yrs</td>
                     <td className="px-5 py-3 text-slate-600">{patient.phone}</td>
                     <td className="px-5 py-3">
                       <StatusBadge status={patient.case_sheet_status} />

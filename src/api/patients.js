@@ -1,8 +1,9 @@
 import { api } from '@/api/client'
 
-export async function listPatients({ search = '', page = 1, limit = 10 }) {
+// sort: 'created_at' (newest, default) | 'name' | 'patient_id' | 'status'; order: 'asc' | 'desc'
+export async function listPatients({ search = '', page = 1, limit = 10, sort, order }) {
   const { data } = await api.get('/patients', {
-    params: { search: search || undefined, page, limit },
+    params: { search: search || undefined, page, limit, sort, order },
   })
   return data // { items, total, page, limit }
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, ScrollRestoration } from 'react-router-dom'
 
 import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
@@ -33,6 +33,8 @@ export default function AppLayout() {
         </main>
       </div>
       <AddPatientModal open={addOpen} onClose={() => setAddOpen(false)} />
+      {/* New pages open at the top; Back returns to where you were */}
+      <ScrollRestoration />
     </div>
   )
 }
