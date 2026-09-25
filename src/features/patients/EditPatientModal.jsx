@@ -45,7 +45,7 @@ export default function EditPatientModal({ patient, open, onClose }) {
             phone: patient.phone,
             address: patient.address,
           }}
-          submitLabel="Save changes"
+          submitLabel="Update changes"
           onSubmit={handleSubmit}
           onCancel={onClose}
         />
