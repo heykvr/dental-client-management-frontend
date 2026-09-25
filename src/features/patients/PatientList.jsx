@@ -13,7 +13,6 @@ import PatientAvatar from '@/features/patients/PatientAvatar'
 import SortableHeader from '@/features/patients/SortableHeader'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 import { usePatients, usePrefillPatient } from '@/hooks/usePatients'
-import { formatShortDate } from '@/lib/utils'
 
 const PAGE_SIZE = 10
 
@@ -156,11 +155,6 @@ export default function PatientList() {
                     <td className="px-5 py-3 text-slate-600">{patient.phone}</td>
                     <td className="px-5 py-3">
                       <StatusBadge status={patient.case_sheet_status} />
-                      {patient.case_sheet_status !== 'not_started' && (
-                        <span className="block pt-1 text-xs text-slate-500">
-                          Updated {formatShortDate(patient.case_sheet_updated_at)}
-                        </span>
-                      )}
                     </td>
                   </tr>
                 ))}

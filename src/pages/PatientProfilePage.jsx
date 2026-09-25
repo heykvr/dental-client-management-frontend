@@ -45,7 +45,7 @@ export default function PatientProfilePage() {
         action={
           <Button
             variant="secondary"
-            className="border-white/40 bg-white/15 text-white hover:bg-white/25"
+            className="border-white bg-white font-semibold text-blue-700 shadow-md hover:bg-blue-50"
             onClick={() => setEditOpen(true)}
           >
             <Pencil size={16} /> Edit

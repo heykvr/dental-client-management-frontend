@@ -5,7 +5,6 @@ import EmptyState from '@/components/ui/EmptyState'
 import StatusBadge from '@/features/case-sheet/StatusBadge'
 import PatientAvatar from '@/features/patients/PatientAvatar'
 import { usePrefillPatient } from '@/hooks/usePatients'
-import { formatDateTime } from '@/lib/utils'
 
 export default function RecentPatients({ patients }) {
   const prefillPatient = usePrefillPatient()
@@ -37,7 +36,7 @@ export default function RecentPatients({ patients }) {
                     <StatusBadge status={patient.case_sheet_status} />
                   </p>
                   <p className="text-xs text-slate-500">
-                    {patient.patient_id} · added {formatDateTime(patient.created_at)}
+                    {patient.patient_id}
                   </p>
                 </div>
               </Link>

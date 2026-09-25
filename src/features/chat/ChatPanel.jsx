@@ -6,22 +6,27 @@ import ErrorMessage from '@/components/ui/ErrorMessage'
 import ChatMessage, { TypingIndicator } from '@/features/chat/ChatMessage'
 import { useChat } from '@/hooks/useChat'
 
-// Example questions from the assignment
+// Questions from the assignment, plus guidance the dentist can ask for
 const SUGGESTIONS = [
   'What is the diagnosis?',
   'Summarize this patient',
   'Explain the diagnosis in simple terms',
-  'What are the important findings?',
+  'Suggest treatment options',
+  'What should I check next?',
+  'Home-care advice for this patient',
 ]
 
 export default function ChatPanel({ patientId }) {
   const { messages, send, clear, isSending, pendingQuestion, error } = useChat(patientId)
   const [text, setText] = useState('')
-  const bottomRef = useRef(null)
+  const listRef = useRef(null)
 
   // Keep the newest message in view
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ block: 'nearest' })
+    // Scroll only the message box (scrollIntoView would also scroll the whole page down
+    // to the chat when the profile opens)
+    const list = listRef.current
+    if (list) list.scrollTop = list.scrollHeight
   }, [messages.length, isSending])
 
   async function ask(question) {
@@ -48,7 +53,7 @@ export default function ChatPanel({ patientId }) {
         )}
       </div>
 
-      <div className="h-80 space-y-3 overflow-y-auto px-5 py-4">
+      <div ref={listRef} className="h-80 space-y-3 overflow-y-auto px-5 py-4">
         {messages.length === 0 && !isSending && (
           <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
             <MessageCircle size={32} className="text-slate-300" aria-hidden="true" />
@@ -68,7 +73,6 @@ export default function ChatPanel({ patientId }) {
             <TypingIndicator />
           </>
         )}
-        <div ref={bottomRef} />
       </div>
 
       <div className="space-y-2 border-t border-slate-100 p-4">
@@ -107,7 +111,8 @@ export default function ChatPanel({ patientId }) {
           </Button>
         </form>
         <p className="text-xs text-slate-500">
-          Answers use only this patient's record. AI-generated, review before use.
+          Patient facts come only from this record; suggestions are general guidance. AI-generated,
+          review before use.
         </p>
       </div>
     </section>

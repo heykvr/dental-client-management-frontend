@@ -47,16 +47,6 @@ export function periodLabel(period, granularity, showYear = true) {
   return showYear ? `${name} ${year.slice(2)}` : name
 }
 
-// "2026-09-25T15:39:48+05:30" -> "25 Sep" (IST, short, for tables)
-export function formatShortDate(isoDateTime) {
-  if (!isoDateTime) return '—'
-  return new Intl.DateTimeFormat('en-IN', {
-    timeZone: APP_TIME_ZONE,
-    day: 'numeric',
-    month: 'short',
-  }).format(new Date(isoDateTime))
-}
-
 // "Good morning" / "Good afternoon" / "Good evening" by the clinic's time (IST)
 export function greeting() {
   const hour = Number(

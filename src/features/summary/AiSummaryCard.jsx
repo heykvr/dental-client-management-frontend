@@ -1,4 +1,4 @@
-import { AlertTriangle, RefreshCw, Sparkles } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, RefreshCw, Sparkles } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 
 import Button from '@/components/ui/Button'
@@ -17,6 +17,10 @@ export default function AiSummaryCard({ patientId, sheet }) {
   const failed = summary.state === 'failed' && !regenerate.isPending
   const outdated = summary.is_stale && !generating && !failed
   const empty = sheet.status === 'not_started'
+  // Up to date = the summary was written from exactly the current record
+  const upToDate = Boolean(summary.text) && summary.state === 'ready' && !summary.is_stale
+  // Only offer an AI call when it can change something (outdated, failed, or no summary yet)
+  const canRegenerate = !empty && !generating && (failed || outdated || !summary.text)
   const toast = useToast()
 
   // Tell the user when a summary that was being written becomes ready (only on that change)
@@ -36,7 +40,7 @@ export default function AiSummaryCard({ patientId, sheet }) {
           <h2 className="flex items-center gap-2 font-semibold text-teal-800">
             <Sparkles size={18} /> AI Generated Summary
           </h2>
-          {!empty && !generating && (
+          {canRegenerate && (
             <Button
               variant="ghost"
               className="px-2! py-1! text-teal-700"
@@ -44,6 +48,11 @@ export default function AiSummaryCard({ patientId, sheet }) {
             >
               <RefreshCw size={14} /> {failed ? 'Retry' : 'Regenerate'}
             </Button>
+          )}
+          {upToDate && !generating && (
+            <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+              <CheckCircle2 size={14} aria-hidden="true" /> Up to date
+            </span>
           )}
         </div>
 
