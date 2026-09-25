@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Save } from 'lucide-react'
 import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 
 import Button from '@/components/ui/Button'
 import ErrorMessage from '@/components/ui/ErrorMessage'
@@ -19,20 +20,21 @@ const TENDERNESS = [
 
 // The case sheet from the mockup: 3 numbered sections. Drafts can be saved anytime;
 // the * fields are needed to complete it (the server sets the status on every save).
-export default function CaseSheetForm({ patientId, sheet }) {
+export default function CaseSheetForm({ patientId, patientName, sheet }) {
+  const navigate = useNavigate()
   const saveCaseSheet = useSaveCaseSheet(patientId)
   const {
     register,
     handleSubmit,
-    reset,
     setError,
     formState: { errors, isDirty, isSubmitting },
   } = useForm({ resolver: zodResolver(caseSheetSchema), defaultValues: toFormValues(sheet) })
 
   async function submit(values) {
     try {
-      const saved = await saveCaseSheet.mutateAsync(toPayload(values))
-      reset(toFormValues(saved)) // the saved values become the new "unchanged" state
+      await saveCaseSheet.mutateAsync(toPayload(values))
+      // Back to the dashboard with a confirmation; the AI summary updates in the background
+      navigate('/', { state: { flash: `Case sheet saved for ${patientName} (${patientId})` } })
     } catch (error) {
       // Server field errors use the same names as the form, e.g. "diagnosis.notes"
       const fieldErrors = Object.entries(error.fields ?? {})

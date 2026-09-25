@@ -7,6 +7,7 @@ import Card from '@/components/ui/Card'
 import ErrorMessage from '@/components/ui/ErrorMessage'
 import Spinner from '@/components/ui/Spinner'
 import CaseSheetForm from '@/features/case-sheet/CaseSheetForm'
+import ChatPanel from '@/features/chat/ChatPanel'
 import EditPatientModal from '@/features/patients/EditPatientModal'
 import AiSummaryCard from '@/features/summary/AiSummaryCard'
 import PatientHeader from '@/features/patients/PatientHeader'
@@ -72,8 +73,15 @@ export default function PatientProfilePage() {
       ) : (
         <>
           <AiSummaryCard patientId={patientId} sheet={caseSheet.data} />
+          {/* key: each patient has their own conversation */}
+          <ChatPanel key={`chat-${patientId}`} patientId={patientId} />
           {/* key: a fresh form per patient, so values never leak between patients */}
-          <CaseSheetForm key={patientId} patientId={patientId} sheet={caseSheet.data} />
+          <CaseSheetForm
+            key={patientId}
+            patientId={patientId}
+            patientName={patient.full_name}
+            sheet={caseSheet.data}
+          />
         </>
       )}
     </div>

@@ -2,6 +2,7 @@ import { ClipboardCheck, ClipboardList, Plus, UserPlus, Users } from 'lucide-rea
 import { useState } from 'react'
 
 import ErrorMessage from '@/components/ui/ErrorMessage'
+import FlashMessage from '@/components/ui/FlashMessage'
 import Spinner from '@/components/ui/Spinner'
 import RecentPatients from '@/features/dashboard/RecentPatients'
 import RegistrationTrend from '@/features/dashboard/RegistrationTrend'
@@ -20,6 +21,8 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-semibold text-slate-900">Dashboard</h1>
         <p className="text-sm text-slate-500">Overview of patients and case sheets</p>
       </div>
+
+      <FlashMessage />
 
       {stats.isError ? (
         <ErrorMessage error={stats.error} onRetry={stats.refetch} />
