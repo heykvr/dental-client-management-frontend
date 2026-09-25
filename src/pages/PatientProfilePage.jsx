@@ -5,7 +5,7 @@ import { Link, useParams } from 'react-router-dom'
 import Button from '@/components/ui/Button'
 import ErrorMessage from '@/components/ui/ErrorMessage'
 import Spinner from '@/components/ui/Spinner'
-import CaseSheetForm from '@/features/case-sheet/CaseSheetForm'
+import CaseSheet from '@/features/case-sheet/CaseSheet'
 import ChatPanel from '@/features/chat/ChatPanel'
 import EditPatientModal from '@/features/patients/EditPatientModal'
 import PatientHeader from '@/features/patients/PatientHeader'
@@ -61,13 +61,8 @@ export default function PatientProfilePage() {
       ) : (
         <div className="grid items-start gap-6 lg:grid-cols-5">
           <div className="lg:col-span-3">
-            {/* key: a fresh form per patient, so values never leak between patients */}
-            <CaseSheetForm
-              key={patientId}
-              patientId={patientId}
-              patientName={patient.full_name}
-              sheet={caseSheet.data}
-            />
+            {/* key: fresh state per patient, so nothing leaks between patients */}
+            <CaseSheet key={patientId} patientId={patientId} sheet={caseSheet.data} />
           </div>
           <div className="space-y-6 lg:col-span-2">
             <AiSummaryCard patientId={patientId} sheet={caseSheet.data} />
