@@ -44,6 +44,7 @@ export function useUpdatePatient(patientId) {
     onSuccess: (patient) => {
       queryClient.setQueryData(['patient', patientId], patient)
       queryClient.invalidateQueries({ queryKey: ['patients'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] }) // recent patients show names
       queryClient.invalidateQueries({ queryKey: ['case-sheet', patientId] }) // AI summary may refresh
     },
   })
