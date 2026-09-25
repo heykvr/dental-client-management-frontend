@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, RefreshCw, Sparkles } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Lightbulb, RefreshCw, Sparkles } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 
 import Button from '@/components/ui/Button'
@@ -7,6 +7,29 @@ import Spinner from '@/components/ui/Spinner'
 import { useToast } from '@/components/ui/toastContext'
 import { useGenerateSummary } from '@/hooks/useCaseSheet'
 import { formatDateTime } from '@/lib/utils'
+
+const NEXT_STEP = /suggested next step:/i
+
+// Summary prose, with the "Suggested next step:" line (if any) shown as its own highlighted
+// block. The model sometimes writes it on the same line, so split on the label, not newlines.
+function SummaryText({ text }) {
+  const match = NEXT_STEP.exec(text)
+  if (!match) return <p>{text}</p>
+  const summary = text.slice(0, match.index).trim()
+  const nextStep = text.slice(match.index + match[0].length).trim()
+  return (
+    <div className="space-y-3">
+      {summary && <p>{summary}</p>}
+      <div className="flex gap-2 rounded-lg border border-blue-100 bg-blue-50 p-3 text-blue-900">
+        <Lightbulb size={16} className="mt-0.5 shrink-0 text-blue-600" aria-hidden="true" />
+        <p>
+          <span className="font-semibold">Suggested next step: </span>
+          {nextStep}
+        </p>
+      </div>
+    </div>
+  )
+}
 
 // The mockup's teal "AI Generated Summary" card. The server writes the summary in the
 // background after each save; this card shows which state it is in.
@@ -78,7 +101,7 @@ export default function AiSummaryCard({ patientId, sheet }) {
                   generating || outdated ? 'opacity-60' : ''
                 }`}
               >
-                {summary.text}
+                <SummaryText text={summary.text} />
               </div>
             ) : (
               !generating && <p className="text-sm text-slate-500">No summary yet.</p>
