@@ -1,10 +1,10 @@
-import { Plus, Stethoscope } from 'lucide-react'
+import { Stethoscope } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
 import { NAV_ITEMS } from '@/components/layout/navItems'
 
-// Left sidebar (desktop): logo, main navigation and the "Add patient" action.
-export default function Sidebar({ onAddPatient }) {
+// Left sidebar (desktop): logo and main navigation. ("Add patient" is the floating button.)
+export default function Sidebar() {
   const { pathname } = useLocation()
 
   return (
@@ -40,14 +40,7 @@ export default function Sidebar({ onAddPatient }) {
         })}
       </nav>
 
-      <div className="space-y-3 p-4">
-        <button
-          type="button"
-          onClick={onAddPatient}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-4 py-2.5 text-sm font-medium text-white shadow-md shadow-blue-600/25 transition hover:-translate-y-0.5 hover:shadow-lg"
-        >
-          <Plus size={18} aria-hidden="true" /> Add patient
-        </button>
+      <div className="p-4">
         <p className="text-center text-xs text-slate-400">All times in IST</p>
       </div>
     </aside>

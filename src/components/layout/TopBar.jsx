@@ -1,12 +1,12 @@
-import { CalendarDays, Plus, Stethoscope } from 'lucide-react'
+import { CalendarDays, Stethoscope } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
 import { NAV_ITEMS } from '@/components/layout/navItems'
 import { greeting, todayLabel } from '@/lib/utils'
 
 // Top of every page: a friendly greeting and today's date. On phones (no sidebar) it also
-// shows the logo, the navigation and the "Add patient" button.
-export default function TopBar({ onAddPatient }) {
+// shows the logo and the navigation.
+export default function TopBar() {
   const { pathname } = useLocation()
 
   return (
@@ -33,22 +33,13 @@ export default function TopBar({ onAddPatient }) {
               <Icon size={20} aria-hidden="true" />
             </Link>
           ))}
-          <button
-            type="button"
-            onClick={onAddPatient}
-            aria-label="Add patient"
-            className="rounded-lg bg-blue-600 p-2 text-white hover:bg-blue-700"
-          >
-            <Plus size={20} aria-hidden="true" />
-          </button>
         </div>
       </div>
 
       {/* Every screen size: greeting + date */}
       <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 lg:px-8 lg:py-4">
         <p className="text-sm text-slate-600 lg:text-base">
-          <span className="font-semibold text-slate-900">{greeting()}</span> 👋 Here's your clinic
-          today.
+          <span className="font-semibold text-slate-900">{greeting()}</span> 👋 Welcome back.
         </p>
         <p className="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
           <CalendarDays size={14} aria-hidden="true" /> {todayLabel()}

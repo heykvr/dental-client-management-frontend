@@ -16,9 +16,9 @@ export default function AppLayout() {
 
   return (
     <div className="min-h-screen">
-      <Sidebar onAddPatient={openAddPatient} />
+      <Sidebar />
       <div className="lg:pl-64">
-        <TopBar onAddPatient={openAddPatient} />
+        <TopBar />
         {waking && (
           // Render's free tier sleeps when idle; the first request can take ~50 s
           <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-sm text-amber-800">
