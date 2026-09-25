@@ -9,7 +9,7 @@ const COLORS = {
 // One dashboard number: gradient icon, big value, label and a small hint underneath
 export default function StatCard({ label, value, hint, icon: Icon, color = 'blue' }) {
   return (
-    <div className="group rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition-shadow hover:border-slate-300 hover:shadow-md">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-sm font-medium text-slate-500">{label}</p>
