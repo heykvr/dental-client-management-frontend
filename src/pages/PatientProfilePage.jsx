@@ -8,6 +8,7 @@ import ErrorMessage from '@/components/ui/ErrorMessage'
 import Spinner from '@/components/ui/Spinner'
 import CaseSheetForm from '@/features/case-sheet/CaseSheetForm'
 import EditPatientModal from '@/features/patients/EditPatientModal'
+import AiSummaryCard from '@/features/summary/AiSummaryCard'
 import PatientHeader from '@/features/patients/PatientHeader'
 import { useCaseSheet } from '@/hooks/useCaseSheet'
 import { usePatient } from '@/hooks/usePatients'
@@ -69,8 +70,11 @@ export default function PatientProfilePage() {
           <Spinner label="Loading case sheet…" />
         </div>
       ) : (
-        // key: a fresh form per patient, so values never leak between patients
-        <CaseSheetForm key={patientId} patientId={patientId} sheet={caseSheet.data} />
+        <>
+          <AiSummaryCard patientId={patientId} sheet={caseSheet.data} />
+          {/* key: a fresh form per patient, so values never leak between patients */}
+          <CaseSheetForm key={patientId} patientId={patientId} sheet={caseSheet.data} />
+        </>
       )}
     </div>
   )
