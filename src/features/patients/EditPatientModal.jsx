@@ -1,4 +1,5 @@
 import Modal from '@/components/ui/Modal'
+import { useToast } from '@/components/ui/toastContext'
 import PatientForm from '@/features/patients/PatientForm'
 import { useUpdatePatient } from '@/hooks/usePatients'
 
@@ -25,11 +26,15 @@ function changedFields(patient, payload) {
 // Same form as "Add patient", pre-filled. The patient ID is never editable.
 export default function EditPatientModal({ patient, open, onClose }) {
   const updatePatient = useUpdatePatient(patient.patient_id)
+  const toast = useToast()
 
   async function handleSubmit(payload) {
     const changes = changedFields(patient, payload)
     // Nothing changed: just close, no API call
-    if (Object.keys(changes).length > 0) await updatePatient.mutateAsync(changes)
+    if (Object.keys(changes).length > 0) {
+      await updatePatient.mutateAsync(changes)
+      toast.success('Patient details updated')
+    }
     onClose()
   }
 

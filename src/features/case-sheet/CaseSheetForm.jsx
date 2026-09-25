@@ -1,20 +1,23 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Save } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 
 import Button from '@/components/ui/Button'
 import ErrorMessage from '@/components/ui/ErrorMessage'
 import Input from '@/components/ui/Input'
-import Select from '@/components/ui/Select'
 import Textarea from '@/components/ui/Textarea'
-import { caseSheetSchema, toFormValues, toPayload } from '@/features/case-sheet/caseSheetSchema'
+import { useToast } from '@/components/ui/toastContext'
+import YesNoToggle from '@/components/ui/YesNoToggle'
+import {
+  caseSheetSchema,
+  countRequiredFilled,
+  toFormValues,
+  toPayload,
+} from '@/features/case-sheet/caseSheetSchema'
+import CompletionProgress from '@/features/case-sheet/CompletionProgress'
 import Section from '@/features/case-sheet/Section'
+import { SECTION_ICONS } from '@/features/case-sheet/sectionIcons'
 import { useSaveCaseSheet } from '@/hooks/useCaseSheet'
-
-const TENDERNESS = [
-  { value: 'yes', label: 'Yes' },
-  { value: 'no', label: 'No' },
-]
 
 // Edit mode of the case sheet: 3 numbered sections, as in the mockup. Drafts can be saved
 // anytime; the * fields are needed to complete it (the server sets the status on every save).
@@ -22,8 +25,10 @@ const TENDERNESS = [
 export default function CaseSheetForm({ patientId, sheet, onDone }) {
   const saveCaseSheet = useSaveCaseSheet(patientId)
   const isNew = sheet.status === 'not_started'
+  const toast = useToast()
   const {
     register,
+    control,
     handleSubmit,
     setError,
     formState: { errors, isDirty, isSubmitting },
@@ -31,7 +36,9 @@ export default function CaseSheetForm({ patientId, sheet, onDone }) {
 
   async function submit(values) {
     try {
-      await saveCaseSheet.mutateAsync(toPayload(values))
+      const saved = await saveCaseSheet.mutateAsync(toPayload(values))
+      const status = { completed: 'completed', pending: 'saved as draft' }[saved.status] ?? 'saved'
+      toast.success(`Case sheet ${isNew ? 'saved' : 'updated'}: ${status}`)
       onDone() // stay on the profile; the AI summary card shows "Updating summary…"
     } catch (error) {
       // Server field errors use the same names as the form, e.g. "diagnosis.notes"
@@ -42,15 +49,20 @@ export default function CaseSheetForm({ patientId, sheet, onDone }) {
   }
 
   const err = (section, field) => errors[section]?.[field]?.message
+  // Live "3 of 5 required fields" while typing
+  const values = useWatch({ control })
 
   return (
     <form onSubmit={handleSubmit(submit)} noValidate className="space-y-4">
-      <p className="text-xs text-slate-500">
-        You can save a draft anytime. Fill the <span className="text-red-500">*</span> fields to
-        complete the case sheet.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white px-4 py-3 shadow-sm">
+        <p className="text-xs text-slate-500">
+          Save a draft anytime. Fill the <span className="text-red-500">*</span> fields to complete
+          it.
+        </p>
+        <CompletionProgress filled={countRequiredFilled(values)} />
+      </div>
 
-      <Section number={1} title="Chief Complaint">
+      <Section number={1} title="Chief Complaint" icon={SECTION_ICONS.chief_complaint}>
         <Textarea
           label="Chief complaint"
           required
@@ -66,7 +78,7 @@ export default function CaseSheetForm({ patientId, sheet, onDone }) {
         />
       </Section>
 
-      <Section number={2} title="Investigation">
+      <Section number={2} title="Investigation" icon={SECTION_ICONS.investigation}>
         <div className="grid gap-4 sm:grid-cols-2">
           <Input
             label="Tooth / area"
@@ -75,13 +87,18 @@ export default function CaseSheetForm({ patientId, sheet, onDone }) {
             {...register('investigation.tooth_area')}
             error={err('investigation', 'tooth_area')}
           />
-          <Select
-            label="Tenderness"
-            required
-            placeholder="Select"
-            options={TENDERNESS}
-            {...register('investigation.tenderness')}
-            error={err('investigation', 'tenderness')}
+          <Controller
+            name="investigation.tenderness"
+            control={control}
+            render={({ field }) => (
+              <YesNoToggle
+                label="Tenderness"
+                required
+                value={field.value}
+                onChange={field.onChange}
+                error={err('investigation', 'tenderness')}
+              />
+            )}
           />
         </div>
         <Input
@@ -104,7 +121,7 @@ export default function CaseSheetForm({ patientId, sheet, onDone }) {
         />
       </Section>
 
-      <Section number={3} title="Diagnosis">
+      <Section number={3} title="Diagnosis" icon={SECTION_ICONS.diagnosis}>
         <Input
           label="Diagnosis"
           required
@@ -121,8 +138,9 @@ export default function CaseSheetForm({ patientId, sheet, onDone }) {
 
       <ErrorMessage error={errors.root} />
 
-      <div className="flex items-center justify-end gap-3">
-        {isDirty && <span className="text-xs text-amber-600">Unsaved changes</span>}
+      {/* Sticky at the bottom of the screen while editing, so Save is always in reach */}
+      <div className="sticky bottom-0 z-10 -mx-1 flex items-center justify-end gap-3 rounded-xl border border-slate-200 bg-white/95 px-4 py-3 shadow-lg backdrop-blur">
+        {isDirty && <span className="mr-auto text-xs text-amber-600">Unsaved changes</span>}
         <Button variant="secondary" onClick={onDone} disabled={isSubmitting}>
           Cancel
         </Button>

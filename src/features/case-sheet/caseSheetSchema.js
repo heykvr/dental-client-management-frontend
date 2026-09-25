@@ -52,3 +52,22 @@ export function toPayload(values) {
     diagnosis: clean(values.diagnosis),
   }
 }
+
+// The 5 fields needed to complete a case sheet (same as the backend's REQUIRED_FOR_COMPLETION)
+export const REQUIRED_FIELDS = [
+  ['chief_complaint', 'complaint'],
+  ['investigation', 'tooth_area'],
+  ['investigation', 'clinical_findings'],
+  ['investigation', 'tenderness'],
+  ['diagnosis', 'diagnosis'],
+]
+
+export const isRequired = (section, field) =>
+  REQUIRED_FIELDS.some(([s, f]) => s === section && f === field)
+
+// Works for API data (null / true / false) and form values ('' / 'yes' / 'no')
+const isFilled = (value) => value !== null && value !== undefined && String(value).trim() !== ''
+
+export function countRequiredFilled(sheet) {
+  return REQUIRED_FIELDS.filter(([section, field]) => isFilled(sheet?.[section]?.[field])).length
+}

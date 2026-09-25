@@ -60,7 +60,17 @@ export default function RegistrationTrend({ defaultTrend }) {
   )
 
   return (
-    <Card title="Patient registrations" action={filters}>
+    <Card
+      title="Patient registrations"
+      subtitle={
+        !year
+          ? 'Last 6 months'
+          : month
+            ? `Each day of ${MONTH_NAMES[month - 1]} ${year}`
+            : `${year}, by month`
+      }
+      action={filters}
+    >
       {year && filtered.isError ? (
         <ErrorMessage error={filtered.error} onRetry={filtered.refetch} />
       ) : year && filtered.isPending ? (
@@ -71,6 +81,13 @@ export default function RegistrationTrend({ defaultTrend }) {
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+              {/* Blue -> teal gradient for the bars */}
+              <defs>
+                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#2563eb" />
+                  <stop offset="100%" stopColor="#14b8a6" />
+                </linearGradient>
+              </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
               <XAxis
                 dataKey="label"
@@ -81,8 +98,13 @@ export default function RegistrationTrend({ defaultTrend }) {
               <Tooltip
                 formatter={(value) => [value, 'Registrations']}
                 cursor={{ fill: '#eff6ff' }}
+                contentStyle={{
+                  borderRadius: 12,
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 4px 12px rgb(0 0 0 / 0.08)',
+                }}
               />
-              <Bar dataKey="count" fill="#2563eb" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="count" fill="url(#barGradient)" radius={[6, 6, 0, 0]} maxBarSize={36} />
             </BarChart>
           </ResponsiveContainer>
         </div>

@@ -1,8 +1,17 @@
 @import 'tailwindcss';
 
-/* Tailwind v4 no longer shows the pointer (hand) cursor on buttons by default.
-   Give every clickable element the pointer, but not when it is disabled. */
+/* Inter everywhere (loaded in index.html), with system fonts as fallback */
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
 @layer base {
+  body {
+    @apply bg-[#f4f7fb] text-slate-800 antialiased;
+  }
+
+  /* Tailwind v4 no longer shows the pointer (hand) cursor on buttons by default.
+     Give every clickable element the pointer, but not when it is disabled. */
   a[href],
   button:not(:disabled),
   select:not(:disabled),
@@ -10,4 +19,25 @@
   [role='button'] {
     cursor: pointer;
   }
+
+  /* Visible focus ring for keyboard users (not shown on mouse clicks) */
+  :where(a, button, select, input, textarea, [role='button']):focus-visible {
+    outline: 2px solid var(--color-blue-500);
+    outline-offset: 2px;
+  }
+}
+
+/* Toast slide-in */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-toast-in {
+  animation: toast-in 0.2s ease-out;
 }

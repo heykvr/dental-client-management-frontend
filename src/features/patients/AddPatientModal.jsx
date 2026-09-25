@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 
 import Modal from '@/components/ui/Modal'
+import { useToast } from '@/components/ui/toastContext'
 import PatientForm from '@/features/patients/PatientForm'
 import { useCreatePatient } from '@/hooks/usePatients'
 
@@ -9,10 +10,12 @@ import { useCreatePatient } from '@/hooks/usePatients'
 export default function AddPatientModal({ open, onClose }) {
   const navigate = useNavigate()
   const createPatient = useCreatePatient()
+  const toast = useToast()
 
   async function handleSubmit(payload) {
     const patient = await createPatient.mutateAsync(payload)
     onClose()
+    toast.success(`${patient.full_name} added as ${patient.patient_id}`)
     navigate(`/patients/${patient.patient_id}`)
   }
 

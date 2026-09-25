@@ -3,7 +3,9 @@ import { useState } from 'react'
 
 import Button from '@/components/ui/Button'
 import CaseSheetForm from '@/features/case-sheet/CaseSheetForm'
+import { countRequiredFilled } from '@/features/case-sheet/caseSheetSchema'
 import CaseSheetView from '@/features/case-sheet/CaseSheetView'
+import CompletionProgress from '@/features/case-sheet/CompletionProgress'
 import StatusBadge from '@/features/case-sheet/StatusBadge'
 import { formatDateTime } from '@/lib/utils'
 
@@ -20,7 +22,10 @@ export default function CaseSheet({ patientId, sheet }) {
           <h2 className="text-lg font-semibold text-slate-900">Case sheet</h2>
           <StatusBadge status={sheet.status} />
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {!editing && !notStarted && sheet.status !== 'completed' && (
+            <CompletionProgress filled={countRequiredFilled(sheet)} />
+          )}
           <p className="text-xs text-slate-500">
             {notStarted ? 'Not saved yet' : `Last saved ${formatDateTime(sheet.updated_at)}`}
           </p>

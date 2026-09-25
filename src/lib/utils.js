@@ -46,3 +46,36 @@ export function periodLabel(period, granularity, showYear = true) {
   const name = MONTHS[Number(month) - 1]
   return showYear ? `${name} ${year.slice(2)}` : name
 }
+
+// "2026-09-25T15:39:48+05:30" -> "25 Sep" (IST, short, for tables)
+export function formatShortDate(isoDateTime) {
+  if (!isoDateTime) return '—'
+  return new Intl.DateTimeFormat('en-IN', {
+    timeZone: APP_TIME_ZONE,
+    day: 'numeric',
+    month: 'short',
+  }).format(new Date(isoDateTime))
+}
+
+// "Good morning" / "Good afternoon" / "Good evening" by the clinic's time (IST)
+export function greeting() {
+  const hour = Number(
+    new Intl.DateTimeFormat('en-GB', { timeZone: APP_TIME_ZONE, hour: 'numeric' }).format(
+      new Date(),
+    ),
+  )
+  if (hour < 12) return 'Good morning'
+  if (hour < 17) return 'Good afternoon'
+  return 'Good evening'
+}
+
+// "Friday, 26 September 2026" (IST)
+export function todayLabel() {
+  return new Intl.DateTimeFormat('en-IN', {
+    timeZone: APP_TIME_ZONE,
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date())
+}

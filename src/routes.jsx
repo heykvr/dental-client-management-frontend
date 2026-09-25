@@ -4,13 +4,15 @@ import AppLayout from '@/components/layout/AppLayout'
 import DashboardPage from '@/pages/DashboardPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import PatientProfilePage from '@/pages/PatientProfilePage'
+import PatientsPage from '@/pages/PatientsPage'
 
-// URL -> page. The dashboard also holds the patient list (the spec allows that).
+// URL -> page. All pages share the sidebar + top bar layout.
 export const router = createBrowserRouter([
   {
     element: <AppLayout />,
     children: [
       { path: '/', element: <DashboardPage /> },
+      { path: '/patients', element: <PatientsPage /> },
       { path: '/patients/:patientId', element: <PatientProfilePage /> },
       { path: '*', element: <NotFoundPage /> },
     ],

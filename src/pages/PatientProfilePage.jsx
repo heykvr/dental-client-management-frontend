@@ -1,10 +1,11 @@
-import { ArrowLeft, Pencil } from 'lucide-react'
+import { Pencil } from 'lucide-react'
 import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
+import Breadcrumbs from '@/components/layout/Breadcrumbs'
 import Button from '@/components/ui/Button'
 import ErrorMessage from '@/components/ui/ErrorMessage'
-import Spinner from '@/components/ui/Spinner'
+import Skeleton from '@/components/ui/Skeleton'
 import CaseSheet from '@/features/case-sheet/CaseSheet'
 import ChatPanel from '@/features/chat/ChatPanel'
 import EditPatientModal from '@/features/patients/EditPatientModal'
@@ -25,8 +26,10 @@ export default function PatientProfilePage() {
 
   if (isPending) {
     return (
-      <div className="py-20 text-center">
-        <Spinner label="Loading patient…" />
+      <div className="space-y-6" aria-label="Loading patient">
+        <Skeleton className="h-4 w-40" />
+        <Skeleton className="h-36 rounded-2xl" />
+        <CaseSheetSkeleton />
       </div>
     )
   }
@@ -35,17 +38,16 @@ export default function PatientProfilePage() {
 
   return (
     <div className="space-y-6">
-      <Link
-        to="/"
-        className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-blue-600"
-      >
-        <ArrowLeft size={16} /> Back to dashboard
-      </Link>
+      <Breadcrumbs items={[{ label: 'Patients', to: '/patients' }, { label: patient.full_name }]} />
 
       <PatientHeader
         patient={patient}
         action={
-          <Button variant="secondary" onClick={() => setEditOpen(true)}>
+          <Button
+            variant="secondary"
+            className="border-white/40 bg-white/15 text-white hover:bg-white/25"
+            onClick={() => setEditOpen(true)}
+          >
             <Pencil size={16} /> Edit
           </Button>
         }
@@ -55,9 +57,7 @@ export default function PatientProfilePage() {
       {caseSheet.isError ? (
         <ErrorMessage error={caseSheet.error} onRetry={caseSheet.refetch} />
       ) : caseSheet.isPending ? (
-        <div className="py-10 text-center">
-          <Spinner label="Loading case sheet…" />
-        </div>
+        <CaseSheetSkeleton />
       ) : (
         <div className="grid items-start gap-6 lg:grid-cols-5">
           <div className="lg:col-span-3">
@@ -71,6 +71,23 @@ export default function PatientProfilePage() {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+// Placeholder for the two-column case sheet area while it loads
+function CaseSheetSkeleton() {
+  return (
+    <div className="grid gap-6 lg:grid-cols-5">
+      <div className="space-y-4 lg:col-span-3">
+        <Skeleton className="h-6 w-48" />
+        <Skeleton className="h-40 rounded-2xl" />
+        <Skeleton className="h-56 rounded-2xl" />
+      </div>
+      <div className="space-y-6 lg:col-span-2">
+        <Skeleton className="h-40 rounded-2xl" />
+        <Skeleton className="h-80 rounded-2xl" />
+      </div>
     </div>
   )
 }

@@ -1,77 +1,82 @@
-import { ClipboardCheck, ClipboardList, Plus, UserPlus, Users } from 'lucide-react'
-import { useState } from 'react'
+import { ClipboardCheck, ClipboardList, UserPlus, Users } from 'lucide-react'
 
 import ErrorMessage from '@/components/ui/ErrorMessage'
-import Spinner from '@/components/ui/Spinner'
+import FloatingAddButton from '@/components/ui/FloatingAddButton'
+import PageHeader from '@/components/ui/PageHeader'
+import Skeleton from '@/components/ui/Skeleton'
 import RecentPatients from '@/features/dashboard/RecentPatients'
 import RegistrationTrend from '@/features/dashboard/RegistrationTrend'
 import StatCard from '@/features/dashboard/StatCard'
-import AddPatientModal from '@/features/patients/AddPatientModal'
-import PatientList from '@/features/patients/PatientList'
 import { useDashboardStats } from '@/hooks/useDashboard'
 
+const percent = (part, total) => (total ? Math.round((part / total) * 100) : 0)
+
 export default function DashboardPage() {
-  const [addOpen, setAddOpen] = useState(false)
   const stats = useDashboardStats()
+  const data = stats.data
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Dashboard</h1>
-        <p className="text-sm text-slate-500">Overview of patients and case sheets</p>
-      </div>
+      <PageHeader title="Dashboard" description="Overview of patients and case sheets" />
 
       {stats.isError ? (
         <ErrorMessage error={stats.error} onRetry={stats.refetch} />
       ) : stats.isPending ? (
-        <div className="py-10 text-center">
-          <Spinner label="Loading dashboard…" />
+        // Placeholders shaped like the cards and chart, so nothing jumps when data arrives
+        <div className="space-y-6" aria-label="Loading dashboard">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {Array.from({ length: 4 }, (_, i) => (
+              <Skeleton key={i} className="h-28 rounded-2xl" />
+            ))}
+          </div>
+          <div className="grid gap-6 xl:grid-cols-3">
+            <Skeleton className="h-80 rounded-2xl xl:col-span-2" />
+            <Skeleton className="h-80 rounded-2xl" />
+          </div>
         </div>
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard label="Total patients" value={stats.data.total_patients} icon={Users} />
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <StatCard
+              label="Total patients"
+              value={data.total_patients}
+              hint="Registered in the clinic"
+              icon={Users}
+              color="blue"
+            />
             <StatCard
               label="New this month"
-              value={stats.data.new_patients_this_month}
+              value={data.new_patients_this_month}
+              hint="Registered this month (IST)"
               icon={UserPlus}
               color="violet"
             />
             <StatCard
               label="Completed case sheets"
-              value={stats.data.completed_case_sheets}
+              value={data.completed_case_sheets}
+              hint={`${percent(data.completed_case_sheets, data.total_patients)}% of patients`}
               icon={ClipboardCheck}
               color="green"
             />
             <StatCard
               label="Pending case sheets"
-              value={stats.data.pending_case_sheets}
+              value={data.pending_case_sheets}
+              hint="Not started or incomplete"
               icon={ClipboardList}
               color="amber"
             />
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-3">
-            <div className="lg:col-span-2">
-              <RegistrationTrend defaultTrend={stats.data.registration_trend} />
+          <div className="grid gap-6 xl:grid-cols-3">
+            <div className="xl:col-span-2">
+              <RegistrationTrend defaultTrend={data.registration_trend} />
             </div>
-            <RecentPatients patients={stats.data.recent_patients} />
+            <RecentPatients patients={data.recent_patients} />
           </div>
         </>
       )}
 
-      <PatientList />
-
-      {/* Floating "Add Patient" button (as the spec asks) */}
-      <button
-        type="button"
-        onClick={() => setAddOpen(true)}
-        className="fixed right-6 bottom-6 z-40 inline-flex items-center gap-2 rounded-full bg-blue-600 px-5 py-3 font-medium text-white shadow-lg hover:bg-blue-700"
-      >
-        <Plus size={20} />
-        Add Patient
-      </button>
-      <AddPatientModal open={addOpen} onClose={() => setAddOpen(false)} />
+      <FloatingAddButton />
     </div>
   )
 }

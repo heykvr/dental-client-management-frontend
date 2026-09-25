@@ -3,8 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import Button from '@/components/ui/Button'
 import ErrorMessage from '@/components/ui/ErrorMessage'
-import Spinner from '@/components/ui/Spinner'
-import ChatMessage from '@/features/chat/ChatMessage'
+import ChatMessage, { TypingIndicator } from '@/features/chat/ChatMessage'
 import { useChat } from '@/hooks/useChat'
 
 // Example questions from the assignment
@@ -51,20 +50,11 @@ export default function ChatPanel({ patientId }) {
 
       <div className="h-80 space-y-3 overflow-y-auto px-5 py-4">
         {messages.length === 0 && !isSending && (
-          <div className="space-y-3">
-            <p className="text-sm text-slate-500">Try one of these:</p>
-            <div className="flex flex-wrap gap-2">
-              {SUGGESTIONS.map((suggestion) => (
-                <button
-                  key={suggestion}
-                  type="button"
-                  onClick={() => ask(suggestion)}
-                  className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs text-blue-700 hover:bg-blue-100"
-                >
-                  {suggestion}
-                </button>
-              ))}
-            </div>
+          <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
+            <MessageCircle size={32} className="text-slate-300" aria-hidden="true" />
+            <p className="text-sm text-slate-500">
+              Ask anything about this patient's record, or pick a suggestion below.
+            </p>
           </div>
         )}
         {messages.map((message, index) => (
@@ -75,7 +65,7 @@ export default function ChatPanel({ patientId }) {
         {pendingQuestion && (
           <>
             <ChatMessage role="user">{pendingQuestion}</ChatMessage>
-            <Spinner size="sm" label="Thinking…" />
+            <TypingIndicator />
           </>
         )}
         <div ref={bottomRef} />
@@ -83,6 +73,20 @@ export default function ChatPanel({ patientId }) {
 
       <div className="space-y-2 border-t border-slate-100 p-4">
         <ErrorMessage error={error} />
+        {/* Suggestions stay available during the whole conversation */}
+        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+          {SUGGESTIONS.map((suggestion) => (
+            <button
+              key={suggestion}
+              type="button"
+              disabled={isSending}
+              onClick={() => ask(suggestion)}
+              className="shrink-0 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs whitespace-nowrap text-blue-700 hover:bg-blue-100 disabled:opacity-50"
+            >
+              {suggestion}
+            </button>
+          ))}
+        </div>
         <form
           onSubmit={(event) => {
             event.preventDefault()
@@ -102,7 +106,7 @@ export default function ChatPanel({ patientId }) {
             <Send size={16} />
           </Button>
         </form>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-500">
           Answers use only this patient's record. AI-generated, review before use.
         </p>
       </div>

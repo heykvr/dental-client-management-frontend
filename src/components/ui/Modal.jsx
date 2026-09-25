@@ -1,8 +1,11 @@
 import { X } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 // A simple popup: dark backdrop, white card, closes on Esc or the X button.
 export default function Modal({ open, title, onClose, children }) {
+  const dialogRef = useRef(null)
+
+  // Close on Esc
   useEffect(() => {
     if (!open) return
     const onKey = (event) => event.key === 'Escape' && onClose()
@@ -10,11 +13,21 @@ export default function Modal({ open, title, onClose, children }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
 
+  // When it opens (only then), put the cursor in the first field so keyboard users
+  // start inside the popup
+  useEffect(() => {
+    if (!open) return
+    const first = dialogRef.current?.querySelector('input, select, textarea')
+    ;(first ?? dialogRef.current)?.focus()
+  }, [open])
+
   if (!open) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
       <div
+        ref={dialogRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"

@@ -3,19 +3,24 @@ import { CalendarDays, MapPin, Phone, User } from 'lucide-react'
 import PatientAvatar from '@/features/patients/PatientAvatar'
 import { capitalize, formatDate, formatDateTime } from '@/lib/utils'
 
-// The header card from the mockup: avatar, name, patient ID, age, gender, phone,
-// with address and registration date on a second line.
+// The patient header from the mockup (avatar, name, ID, age, gender), as a gradient banner,
+// with phone, address and registration date.
 export default function PatientHeader({ patient, action }) {
   return (
-    <div className="space-y-4 rounded-2xl border border-blue-100 bg-blue-50/60 p-5">
-      <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
-        <div className="flex items-center gap-4">
-          <PatientAvatar patient={patient} size="lg" />
-          <div>
-            <h1 className="text-xl font-semibold text-slate-900">{patient.full_name}</h1>
-            <p className="text-sm text-slate-500">Patient ID: {patient.patient_id}</p>
+    <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/70">
+      <div className="bg-linear-to-r from-blue-600 via-blue-500 to-teal-500 px-5 py-6 text-white sm:px-6">
+        <div className="flex flex-wrap items-center gap-4">
+          <span className="rounded-full ring-4 ring-white/30">
+            <PatientAvatar patient={patient} size="lg" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate text-2xl font-bold tracking-tight">{patient.full_name}</h1>
+            <p className="text-sm text-blue-50">Patient ID: {patient.patient_id}</p>
           </div>
+          {action && <div className="shrink-0">{action}</div>}
         </div>
+      </div>
+      <div className="grid gap-4 px-5 py-4 text-sm sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
         <Detail
           icon={CalendarDays}
           label="Age"
@@ -24,13 +29,12 @@ export default function PatientHeader({ patient, action }) {
         />
         <Detail icon={User} label="Gender" value={capitalize(patient.gender)} />
         <Detail icon={Phone} label="Phone" value={patient.phone} />
-        {action && <div className="ml-auto">{action}</div>}
-      </div>
-      <div className="flex flex-wrap gap-x-6 gap-y-1 border-t border-blue-100 pt-3 text-sm text-slate-600">
-        <span className="flex items-center gap-1.5">
-          <MapPin size={16} className="text-slate-400" /> {patient.address}
-        </span>
-        <span className="text-slate-400">Registered {formatDateTime(patient.created_at)}</span>
+        <Detail
+          icon={MapPin}
+          label="Address"
+          value={patient.address}
+          hint={`Registered ${formatDateTime(patient.created_at)}`}
+        />
       </div>
     </div>
   )
@@ -38,14 +42,14 @@ export default function PatientHeader({ patient, action }) {
 
 function Detail({ icon: Icon, label, value, hint }) {
   return (
-    <div className="flex items-center gap-2">
-      <Icon size={20} className="text-slate-400" />
-      <div>
+    <div className="flex items-start gap-3">
+      <span className="rounded-lg bg-slate-100 p-2 text-slate-500">
+        <Icon size={16} aria-hidden="true" />
+      </span>
+      <div className="min-w-0">
         <p className="text-xs text-slate-500">{label}</p>
-        <p className="font-medium text-slate-900">
-          {value}
-          {hint && <span className="ml-1 text-xs font-normal text-slate-400">({hint})</span>}
-        </p>
+        <p className="truncate font-medium text-slate-900">{value}</p>
+        {hint && <p className="text-xs text-slate-500">{hint}</p>}
       </div>
     </div>
   )
