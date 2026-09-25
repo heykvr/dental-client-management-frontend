@@ -44,7 +44,8 @@ export default function CaseSheetForm({ patientId, sheet, onDone }) {
       // Server field errors use the same names as the form, e.g. "diagnosis.notes"
       const fieldErrors = Object.entries(error.fields ?? {})
       fieldErrors.forEach(([field, message]) => setError(field, { message }))
-      if (fieldErrors.length === 0) setError('root', { message: error.message })
+      if (fieldErrors.length === 0)
+        setError('root', { message: error.message, retryAt: error.retryAt })
     }
   }
 

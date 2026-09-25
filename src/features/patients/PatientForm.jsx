@@ -37,7 +37,8 @@ export default function PatientForm({
     } catch (error) {
       const fieldErrors = Object.entries(error.fields ?? {})
       fieldErrors.forEach(([field, message]) => setError(field, { message }))
-      if (fieldErrors.length === 0) setError('root', { message: error.message })
+      if (fieldErrors.length === 0)
+        setError('root', { message: error.message, retryAt: error.retryAt })
     }
   }
 

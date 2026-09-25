@@ -35,9 +35,7 @@ export default function RecentPatients({ patients }) {
                     <span className="truncate font-medium text-slate-900">{patient.full_name}</span>
                     <StatusBadge status={patient.case_sheet_status} />
                   </p>
-                  <p className="text-xs text-slate-500">
-                    {patient.patient_id}
-                  </p>
+                  <p className="text-xs text-slate-500">{patient.patient_id}</p>
                 </div>
               </Link>
             </li>

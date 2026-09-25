@@ -9,26 +9,35 @@ export const api = axios.create({
 // Every failed request becomes an ApiError with a message that is safe to show to users.
 // The backend always answers errors as { detail, code } (and 422 adds errors: [{field, message}]).
 export class ApiError extends Error {
-  constructor({ message, status = 0, code = 'NETWORK_ERROR', fields = {} }) {
+  constructor({ message, status = 0, code = 'NETWORK_ERROR', fields = {}, retryAt = null }) {
     super(message)
     this.status = status
     this.code = code
     this.fields = fields // e.g. { phone: 'Phone must be 10-15 digits' } for form errors
+    this.retryAt = retryAt // 429 only: time (ms) when the user may try again, for a live countdown
   }
+}
+
+// 429 responses carry Retry-After (seconds); turn it into a fixed point in time
+function retryAtFrom(headers) {
+  const seconds = Number(headers?.['retry-after'])
+  return seconds > 0 ? Date.now() + seconds * 1000 : null
 }
 
 function toApiError(error) {
   if (!error.response) {
     return new ApiError({ message: "Can't reach the server. Check your connection and try again." })
   }
-  const { status, data } = error.response
+  const { status, data, headers } = error.response
   const fields = Object.fromEntries((data?.errors ?? []).map((e) => [e.field, e.message]))
   return new ApiError({
-    // For 429 the backend already says "Too many requests. Please try again in N seconds."
+    // For 429 the backend says "Too many requests. Please try again in N seconds."
+    // ErrorMessage replaces N with a live countdown using retryAt.
     message: data?.detail ?? 'Something went wrong. Please try again.',
     status,
     code: data?.code ?? 'UNKNOWN_ERROR',
     fields,
+    retryAt: status === 429 ? retryAtFrom(headers) : null,
   })
 }
 
