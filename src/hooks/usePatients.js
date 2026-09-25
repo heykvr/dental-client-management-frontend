@@ -17,11 +17,19 @@ export function usePatient(patientId) {
   })
 }
 
+// Put a patient we already have (from the list, or just created) into the cache, so their
+// profile opens instantly instead of waiting for another request.
+export function usePrefillPatient() {
+  const queryClient = useQueryClient()
+  return (patient) => queryClient.setQueryData(['patient', patient.patient_id], patient)
+}
+
 export function useCreatePatient() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: createPatient,
-    onSuccess: () => {
+    onSuccess: (patient) => {
+      queryClient.setQueryData(['patient', patient.patient_id], patient)
       // The list and the dashboard numbers changed: refetch them
       queryClient.invalidateQueries({ queryKey: ['patients'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })

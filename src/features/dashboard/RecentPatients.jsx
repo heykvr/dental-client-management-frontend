@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom'
 import Card from '@/components/ui/Card'
 import EmptyState from '@/components/ui/EmptyState'
 import PatientAvatar from '@/features/patients/PatientAvatar'
+import { usePrefillPatient } from '@/hooks/usePatients'
 import { formatDateTime } from '@/lib/utils'
 
 export default function RecentPatients({ patients }) {
+  const prefillPatient = usePrefillPatient()
   return (
     <Card title="Recent patients">
       {patients.length === 0 ? (
@@ -16,6 +18,7 @@ export default function RecentPatients({ patients }) {
             <li key={patient.patient_id}>
               <Link
                 to={`/patients/${patient.patient_id}`}
+                onClick={() => prefillPatient(patient)}
                 className="-mx-2 flex items-center gap-3 rounded-lg px-2 py-2.5 hover:bg-slate-50"
               >
                 <PatientAvatar patient={patient} />

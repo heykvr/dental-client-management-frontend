@@ -2,23 +2,25 @@ import { Search } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
 import EmptyState from '@/components/ui/EmptyState'
 import ErrorMessage from '@/components/ui/ErrorMessage'
+import Pagination from '@/components/ui/Pagination'
 import Spinner from '@/components/ui/Spinner'
 import PatientAvatar from '@/features/patients/PatientAvatar'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
-import { usePatients } from '@/hooks/usePatients'
+import { usePatients, usePrefillPatient } from '@/hooks/usePatients'
 import { formatDate } from '@/lib/utils'
 
 const PAGE_SIZE = 10
 
 export default function PatientList() {
   const navigate = useNavigate()
+  const prefillPatient = usePrefillPatient()
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
-  const debouncedSearch = useDebouncedValue(search.trim())
+  // Wait 250 ms after the last keystroke before searching (fewer API calls, still feels instant)
+  const debouncedSearch = useDebouncedValue(search.trim(), 250)
   const { data, isPending, isError, error, refetch, isFetching } = usePatients({
     search: debouncedSearch,
     page,
@@ -41,8 +43,14 @@ export default function PatientList() {
         }}
         placeholder="Search name or phone"
         aria-label="Search patients"
-        className="w-full rounded-lg border border-slate-300 py-2 pr-3 pl-9 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+        className="w-full rounded-lg border border-slate-300 py-2 pr-9 pl-9 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
       />
+      {/* Old results stay visible; this small spinner shows a new search is on its way */}
+      {(isFetching || search.trim() !== debouncedSearch) && !isPending && (
+        <span className="absolute top-1/2 right-3 -translate-y-1/2">
+          <Spinner size="sm" />
+        </span>
+      )}
     </label>
   )
 
@@ -75,11 +83,14 @@ export default function PatientList() {
                   <th className="px-5 py-2 font-medium">Phone</th>
                 </tr>
               </thead>
-              <tbody className={`divide-y divide-slate-100 ${isFetching ? 'opacity-60' : ''}`}>
+              <tbody className="divide-y divide-slate-100">
                 {data.items.map((patient) => (
                   <tr
                     key={patient.patient_id}
-                    onClick={() => navigate(`/patients/${patient.patient_id}`)}
+                    onClick={() => {
+                      prefillPatient(patient)
+                      navigate(`/patients/${patient.patient_id}`)
+                    }}
                     className="cursor-pointer hover:bg-blue-50/50"
                   >
                     <td className="px-5 py-3">
@@ -102,22 +113,11 @@ export default function PatientList() {
             </table>
           </div>
 
-          <div className="mt-4 flex items-center justify-between text-sm text-slate-500">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
             <span>
               Showing {from}–{to} of {data.total}
             </span>
-            <div className="flex gap-2">
-              <Button variant="secondary" disabled={page <= 1} onClick={() => setPage(page - 1)}>
-                Previous
-              </Button>
-              <Button
-                variant="secondary"
-                disabled={page >= totalPages}
-                onClick={() => setPage(page + 1)}
-              >
-                Next
-              </Button>
-            </div>
+            <Pagination page={page} totalPages={totalPages} onChange={setPage} />
           </div>
         </>
       )}

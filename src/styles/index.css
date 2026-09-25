@@ -1,1 +1,13 @@
 @import 'tailwindcss';
+
+/* Tailwind v4 no longer shows the pointer (hand) cursor on buttons by default.
+   Give every clickable element the pointer, but not when it is disabled. */
+@layer base {
+  a[href],
+  button:not(:disabled),
+  select:not(:disabled),
+  label[for],
+  [role='button'] {
+    cursor: pointer;
+  }
+}

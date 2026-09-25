@@ -1,13 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 
 import Button from '@/components/ui/Button'
 import ErrorMessage from '@/components/ui/ErrorMessage'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import Textarea from '@/components/ui/Textarea'
+import DateOfBirthSelect from '@/features/patients/DateOfBirthSelect'
 import { EMPTY_PATIENT, patientSchema, toPatientPayload } from '@/features/patients/patientSchema'
-import { todayInIST } from '@/lib/utils'
 
 const GENDERS = [
   { value: 'male', label: 'Male' },
@@ -25,6 +25,7 @@ export default function PatientForm({
 }) {
   const {
     register,
+    control,
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
@@ -50,14 +51,22 @@ export default function PatientForm({
           error={errors.first_name?.message}
         />
         <Input label="Last name" {...register('last_name')} error={errors.last_name?.message} />
-        <Input
-          label="Date of birth"
-          type="date"
-          required
-          max={todayInIST()}
-          {...register('date_of_birth')}
-          error={errors.date_of_birth?.message}
-        />
+      </div>
+      {/* Custom input (3 dropdowns), so it is connected with a Controller instead of register */}
+      <Controller
+        name="date_of_birth"
+        control={control}
+        render={({ field }) => (
+          <DateOfBirthSelect
+            required
+            value={field.value}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            error={errors.date_of_birth?.message}
+          />
+        )}
+      />
+      <div className="grid gap-4 sm:grid-cols-2">
         <Select
           label="Gender"
           required
@@ -66,15 +75,15 @@ export default function PatientForm({
           {...register('gender')}
           error={errors.gender?.message}
         />
+        <Input
+          label="Phone"
+          type="tel"
+          required
+          placeholder="+91 98765 43210"
+          {...register('phone')}
+          error={errors.phone?.message}
+        />
       </div>
-      <Input
-        label="Phone"
-        type="tel"
-        required
-        placeholder="+91 98765 43210"
-        {...register('phone')}
-        error={errors.phone?.message}
-      />
       <Textarea
         label="Address"
         required
