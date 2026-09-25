@@ -1,0 +1,42 @@
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+
+import { createPatient, getPatient, listPatients, updatePatient } from '@/api/patients'
+
+export function usePatients({ search, page, limit }) {
+  return useQuery({
+    queryKey: ['patients', { search, page, limit }],
+    queryFn: () => listPatients({ search, page, limit }),
+    placeholderData: keepPreviousData, // keep the old page visible while the next one loads
+  })
+}
+
+export function usePatient(patientId) {
+  return useQuery({
+    queryKey: ['patient', patientId],
+    queryFn: () => getPatient(patientId),
+  })
+}
+
+export function useCreatePatient() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: createPatient,
+    onSuccess: () => {
+      // The list and the dashboard numbers changed: refetch them
+      queryClient.invalidateQueries({ queryKey: ['patients'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    },
+  })
+}
+
+export function useUpdatePatient(patientId) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (changes) => updatePatient(patientId, changes),
+    onSuccess: (patient) => {
+      queryClient.setQueryData(['patient', patientId], patient)
+      queryClient.invalidateQueries({ queryKey: ['patients'] })
+      queryClient.invalidateQueries({ queryKey: ['case-sheet', patientId] }) // AI summary may refresh
+    },
+  })
+}
