@@ -6,8 +6,10 @@ import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
 import ErrorMessage from '@/components/ui/ErrorMessage'
 import Spinner from '@/components/ui/Spinner'
+import CaseSheetForm from '@/features/case-sheet/CaseSheetForm'
 import EditPatientModal from '@/features/patients/EditPatientModal'
 import PatientHeader from '@/features/patients/PatientHeader'
+import { useCaseSheet } from '@/hooks/useCaseSheet'
 import { usePatient } from '@/hooks/usePatients'
 import { formatDateTime } from '@/lib/utils'
 import NotFoundPage from '@/pages/NotFoundPage'
@@ -16,6 +18,7 @@ export default function PatientProfilePage() {
   const { patientId } = useParams()
   const { data: patient, isPending, isError, error, refetch } = usePatient(patientId)
   const [editOpen, setEditOpen] = useState(false)
+  const caseSheet = useCaseSheet(patientId)
 
   if (isPending) {
     return (
@@ -58,6 +61,17 @@ export default function PatientProfilePage() {
           </div>
         </dl>
       </Card>
+
+      {caseSheet.isError ? (
+        <ErrorMessage error={caseSheet.error} onRetry={caseSheet.refetch} />
+      ) : caseSheet.isPending ? (
+        <div className="py-10 text-center">
+          <Spinner label="Loading case sheet…" />
+        </div>
+      ) : (
+        // key: a fresh form per patient, so values never leak between patients
+        <CaseSheetForm key={patientId} patientId={patientId} sheet={caseSheet.data} />
+      )}
     </div>
   )
 }
