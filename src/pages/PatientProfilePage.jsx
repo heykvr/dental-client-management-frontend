@@ -3,24 +3,25 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import Button from '@/components/ui/Button'
-import Card from '@/components/ui/Card'
 import ErrorMessage from '@/components/ui/ErrorMessage'
 import Spinner from '@/components/ui/Spinner'
 import CaseSheetForm from '@/features/case-sheet/CaseSheetForm'
 import ChatPanel from '@/features/chat/ChatPanel'
 import EditPatientModal from '@/features/patients/EditPatientModal'
-import AiSummaryCard from '@/features/summary/AiSummaryCard'
 import PatientHeader from '@/features/patients/PatientHeader'
+import AiSummaryCard from '@/features/summary/AiSummaryCard'
 import { useCaseSheet } from '@/hooks/useCaseSheet'
 import { usePatient } from '@/hooks/usePatients'
-import { formatDateTime } from '@/lib/utils'
 import NotFoundPage from '@/pages/NotFoundPage'
 
+// Patient profile, laid out like the mockup:
+//   header card (details + Edit) across the top
+//   left: case sheet form        right: AI summary card + chatbot
 export default function PatientProfilePage() {
   const { patientId } = useParams()
   const { data: patient, isPending, isError, error, refetch } = usePatient(patientId)
-  const [editOpen, setEditOpen] = useState(false)
   const caseSheet = useCaseSheet(patientId)
+  const [editOpen, setEditOpen] = useState(false)
 
   if (isPending) {
     return (
@@ -51,19 +52,6 @@ export default function PatientProfilePage() {
       />
       <EditPatientModal patient={patient} open={editOpen} onClose={() => setEditOpen(false)} />
 
-      <Card title="Patient details">
-        <dl className="grid gap-4 text-sm sm:grid-cols-2">
-          <div>
-            <dt className="text-slate-500">Address</dt>
-            <dd className="text-slate-900">{patient.address}</dd>
-          </div>
-          <div>
-            <dt className="text-slate-500">Registered</dt>
-            <dd className="text-slate-900">{formatDateTime(patient.created_at)}</dd>
-          </div>
-        </dl>
-      </Card>
-
       {caseSheet.isError ? (
         <ErrorMessage error={caseSheet.error} onRetry={caseSheet.refetch} />
       ) : caseSheet.isPending ? (
@@ -71,18 +59,22 @@ export default function PatientProfilePage() {
           <Spinner label="Loading case sheet…" />
         </div>
       ) : (
-        <>
-          <AiSummaryCard patientId={patientId} sheet={caseSheet.data} />
-          {/* key: each patient has their own conversation */}
-          <ChatPanel key={`chat-${patientId}`} patientId={patientId} />
-          {/* key: a fresh form per patient, so values never leak between patients */}
-          <CaseSheetForm
-            key={patientId}
-            patientId={patientId}
-            patientName={patient.full_name}
-            sheet={caseSheet.data}
-          />
-        </>
+        <div className="grid items-start gap-6 lg:grid-cols-5">
+          <div className="lg:col-span-3">
+            {/* key: a fresh form per patient, so values never leak between patients */}
+            <CaseSheetForm
+              key={patientId}
+              patientId={patientId}
+              patientName={patient.full_name}
+              sheet={caseSheet.data}
+            />
+          </div>
+          <div className="space-y-6 lg:col-span-2">
+            <AiSummaryCard patientId={patientId} sheet={caseSheet.data} />
+            {/* key: each patient has their own conversation */}
+            <ChatPanel key={`chat-${patientId}`} patientId={patientId} />
+          </div>
+        </div>
       )}
     </div>
   )
