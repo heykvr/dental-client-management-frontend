@@ -16,6 +16,9 @@ import { usePatients, usePrefillPatient } from '@/hooks/usePatients'
 
 const PAGE_SIZE = 10
 
+// Sticky first column; the right border shows where the scrolling part starts (phones only)
+const PINNED = 'sticky left-0 z-10 border-r border-slate-100 sm:border-r-0'
+
 export default function PatientList() {
   const navigate = useNavigate()
   const prefillPatient = usePrefillPatient()
@@ -110,11 +113,13 @@ export default function PatientList() {
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-50 text-xs tracking-wide text-slate-500 uppercase">
                 <tr>
+                  {/* Name column stays pinned while the rest scrolls sideways on phones */}
                   <SortableHeader
                     label="Patient name"
                     field="name"
                     sort={sort}
                     onSort={changeSort}
+                    className={PINNED + ' bg-slate-50'}
                   />
                   <SortableHeader
                     label="Patient ID"
@@ -142,12 +147,16 @@ export default function PatientList() {
                     aria-label={`Open ${patient.full_name}`}
                     onClick={() => openPatient(patient)}
                     onKeyDown={(e) => e.key === 'Enter' && openPatient(patient)}
-                    className="cursor-pointer outline-none hover:bg-blue-50/50 focus-visible:bg-blue-50"
+                    className="group cursor-pointer outline-none hover:bg-blue-50 focus-visible:bg-blue-50"
                   >
-                    <td className="px-5 py-3">
+                    <td
+                      className={`${PINNED} bg-white px-5 py-3 group-hover:bg-blue-50 group-focus-visible:bg-blue-50`}
+                    >
                       <div className="flex items-center gap-3">
                         <PatientAvatar patient={patient} />
-                        <span className="font-medium text-slate-900">{patient.full_name}</span>
+                        <span className="font-medium whitespace-nowrap text-slate-900">
+                          {patient.full_name}
+                        </span>
                       </div>
                     </td>
                     <td className="px-5 py-3 text-slate-600">{patient.patient_id}</td>
