@@ -59,12 +59,14 @@ export default function PatientProfilePage() {
       ) : caseSheet.isPending ? (
         <CaseSheetSkeleton />
       ) : (
-        <div className="grid items-start gap-6 lg:grid-cols-5">
-          <div className="lg:col-span-3">
+        // grid-cols-1 + min-w-0: wide content (e.g. the chat chip row) scrolls inside its card
+        // instead of stretching the column past the screen on phones
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-5">
+          <div className="min-w-0 lg:col-span-3">
             {/* key: fresh state per patient, so nothing leaks between patients */}
             <CaseSheet key={patientId} patientId={patientId} sheet={caseSheet.data} />
           </div>
-          <div className="space-y-6 lg:col-span-2">
+          <div className="min-w-0 space-y-6 lg:col-span-2">
             <AiSummaryCard patientId={patientId} sheet={caseSheet.data} />
             {/* key: each patient has their own conversation */}
             <ChatPanel key={`chat-${patientId}`} patientId={patientId} />

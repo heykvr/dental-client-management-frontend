@@ -5,6 +5,9 @@ import { todayInIST } from '@/lib/utils'
 // Same rules as the backend (app/schemas/patient.py), so users see errors before submitting.
 // The backend still validates everything: this is only for a faster, friendlier form.
 const MAX_AGE_YEARS = 120
+// Letters, plus the few symbols real names use: space, dot (initials), apostrophe, hyphen
+const NAME_PATTERN = /^[A-Za-z][A-Za-z .'-]*$/
+const NAME_ERROR = "Use letters only (spaces, . ' - allowed), starting with a letter"
 
 function ageInYears(isoDate) {
   const [y, m, d] = isoDate.split('-').map(Number)
@@ -13,8 +16,17 @@ function ageInYears(isoDate) {
 }
 
 export const patientSchema = z.object({
-  first_name: z.string().trim().min(1, 'First name is required').max(50, 'Max 50 characters'),
-  last_name: z.string().trim().max(50, 'Max 50 characters'), // optional: single-name patients
+  first_name: z
+    .string()
+    .trim()
+    .min(1, 'First name is required')
+    .max(50, 'Max 50 characters')
+    .regex(NAME_PATTERN, NAME_ERROR),
+  last_name: z
+    .string()
+    .trim()
+    .max(50, 'Max 50 characters')
+    .refine((value) => !value || NAME_PATTERN.test(value), NAME_ERROR), // optional: single-name patients
   date_of_birth: z
     .string()
     .min(1, 'Date of birth is required')

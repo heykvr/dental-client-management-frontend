@@ -23,13 +23,14 @@ export default function PatientForm({
   onSubmit,
   onCancel,
 }) {
+  // onTouched: check a field when the user leaves it, then re-check as they type
   const {
     register,
     control,
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm({ resolver: zodResolver(patientSchema), defaultValues })
+  } = useForm({ resolver: zodResolver(patientSchema), defaultValues, mode: 'onTouched' })
 
   async function submit(values) {
     try {
