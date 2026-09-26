@@ -43,6 +43,16 @@
     outline: 2px solid var(--color-blue-500);
     outline-offset: 2px;
   }
+
+  /* Recharts makes the chart focusable; a tap on mobile drew the browser's black focus box.
+     Hide it for taps/clicks, keep a ring for keyboard users. */
+  .recharts-wrapper :focus:not(:focus-visible) {
+    outline: none;
+  }
+  .recharts-wrapper :focus-visible {
+    outline: 2px solid var(--color-blue-500);
+    outline-offset: 2px;
+  }
 }
 
 /* Toast slide-in */
