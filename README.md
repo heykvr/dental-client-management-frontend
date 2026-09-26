@@ -87,3 +87,11 @@ Production build: `npm run build`, then `npm run preview`.
 - Patient links use the patient ID (e.g. `/patients/PAT-0001`), which is easy to guess. With login, they should use random IDs.
 - The backend runs on Render's free tier and sleeps when idle, so the first load can take 30–60 s (the app shows "Waking up server…").
 - AI features use Gemini's free tier and can be briefly unavailable under load, so use demo data only.
+
+## 7. Next steps
+
+- **CI:** GitHub Actions runs ESLint, Prettier and a production build on every pull request, and a failing check blocks the merge.
+- **Tests:** component tests (Vitest + React Testing Library) for the forms, plus a few end-to-end tests (Playwright) of the main flow.
+- **CD:** Vercel preview deployments for each pull request, pointed at a staging backend. Production deploys only from `main` after CI passes.
+- **Environments:** separate staging and production `VITE_API_BASE_URL` values, each allowed in its backend's CORS settings.
+- **Security:** a login screen once the backend has authentication.
