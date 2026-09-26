@@ -1,6 +1,10 @@
 # Dental Patient Management: Frontend
 
 **Live app:** https://dental-client-management-frontend.vercel.app
+<img width="1460" height="722" alt="image" src="https://github.com/user-attachments/assets/21f2629e-7f9d-4108-8d31-bd09beaa3639" />
+<img width="1467" height="731" alt="image" src="https://github.com/user-attachments/assets/859c5f7b-d1e5-4247-bfb6-7ebd34835f31" />
+<img width="1451" height="728" alt="image" src="https://github.com/user-attachments/assets/6a79f113-fe42-4a07-83d9-ab553ca17948" />
+<img width="457" height="563" alt="image" src="https://github.com/user-attachments/assets/c19febef-89e7-40cc-8b83-d50d2d1363df" />
 
 ## 1. Project overview
 
